@@ -1,12 +1,13 @@
 package com.theendercore;
 
+import com.mongodb.DBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -14,7 +15,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import static com.mongodb.client.model.Filters.eq;
 import static com.theendercore.WafVerify.LOGGER;
 
@@ -41,25 +41,38 @@ public class VerifyCommand implements CommandExecutor {
             MongoDatabase database = mongoClient.getDatabase("myFirstDatabase");
             MongoCollection<Document> collection = database.getCollection("temppasswordmodels");
             MongoCollection<Document> submitCluster = database.getCollection("verifymodels");
-            try {
-                Document playerInfo = collection.find(eq("password", args[0])).first();
-                LOGGER.info(playerInfo);
-                player.sendMessage(playerInfo.toString());
-                player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
-                String x = String.valueOf(playerInfo.getObjectId("_id"));
-                player.sendMessage( x);
-
-//                submitCluster.updateOne(
-//                        Filters.eq("_id", "xx"),
-//                        Updates.set("minecraftUUID", playerUUID));
-
-            } catch (Exception e) {
-                LOGGER.error(e);
+            DBObject playerInfo;
+            if (collection.find(eq("password", args[0])).first() == null){
                 player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
                 return true;
             }
+//            playerInfo = (collection.find(eq("password", args[0])).first()).to;
 
+            /*
+            * READ ABOUT BSON documents
+            *
+            * */
+//            LOGGER.info(playerInfo);
+//            assert playerInfo != null;
+//            player.sendMessage(playerInfo.toString());
+            player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
+
+//            Object x = playerInfo.get("password");
+//            LOGGER.info(x);
+//                submitCluster.updateOne(
+//                        Filters.eq("_id", "xx"),
+//                        Updates.set("minecraftUUID", playerUUID));
         }
         return true;
+    }
+
+
+    private static class TempVerify{
+        public String _id;
+        public String password;
+        TempVerify(String _id,String password){
+            this._id=_id;
+            this.password=password;
+        }
     }
 }
