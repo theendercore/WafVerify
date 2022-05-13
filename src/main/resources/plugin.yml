@@ -5,3 +5,7 @@ api-version: 1.18
 authors: [ Ender, waf ]
 description: Yes :)
 website: wafflesarebetter.com
+commands:
+  verify:
+    description: Connects your Discord account to your Minecraft account!
+    usage: /<command>

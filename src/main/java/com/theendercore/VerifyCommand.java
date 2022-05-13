@@ -4,6 +4,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.bson.Document;
 import org.bukkit.ChatColor;
@@ -12,6 +14,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import static com.mongodb.client.model.Filters.eq;
+import static com.theendercore.WafVerify.LOGGER;
 
 public class VerifyCommand implements CommandExecutor {
     Dotenv dotenv = Dotenv.load();
@@ -23,31 +28,38 @@ public class VerifyCommand implements CommandExecutor {
             return true;
         }
 
-
         Player player = (Player) sender;
         if (args.length < 1) {
             player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
             return true;
         }
         String playerUUID = player.getUniqueId().toString();
-
+//        for (String argument : args) {
+//            LOGGER.info(argument);
+//        }
         try (MongoClient mongoClient = MongoClients.create(dotenv.get("MONGO_URI"))) {
             MongoDatabase database = mongoClient.getDatabase("myFirstDatabase");
             MongoCollection<Document> collection = database.getCollection("temppasswordmodels");
-            Document user = collection.find().first();
-            assert user != null;
-            System.out.println(user.toJson());
-        }
-//        MongoClient mongoClient = MongoClients.create("mongodb+srv://WafflesAreBetter:g4Lex3wiTe118zee@cluster0.d6awo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
-//        MongoDatabase database = mongoClient.getDatabase("myFirstDatabase");
-//        MongoCollection<Document> col = database.getCollection("discord-mc-verify");
-//        BasicDBObject verifyList = new BasicDBObject();
-//        List<BasicDBObject> verify = new ArrayList();
-//        verify.add(new BasicDBObject("vPassword", args[0]));
-//        verify.add(new BasicDBObject("pendingUserName", playerName));
-//        verifyList.put("$and", verify);
-//        Long totalCount = col.countDocuments(verifyList);
+            MongoCollection<Document> submitCluster = database.getCollection("verifymodels");
+            try {
+                Document playerInfo = collection.find(eq("password", args[0])).first();
+                LOGGER.info(playerInfo);
+                player.sendMessage(playerInfo.toString());
+                player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
+                String x = String.valueOf(playerInfo.getObjectId("_id"));
+                player.sendMessage( x);
 
-        return false;
+//                submitCluster.updateOne(
+//                        Filters.eq("_id", "xx"),
+//                        Updates.set("minecraftUUID", playerUUID));
+
+            } catch (Exception e) {
+                LOGGER.error(e);
+                player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
+                return true;
+            }
+
+        }
+        return true;
     }
 }

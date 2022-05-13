@@ -1,15 +1,20 @@
 package com.theendercore;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.logging.log4j.LogManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.logging.Logger;
+
 
 public final class WafVerify extends JavaPlugin {
 
+    public static org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(Logger.class);
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        System.out.println("Waffles are better! oh god test");
+        LOGGER.info("< WafVerify > Plugin Up");
+        this.getServer().getPluginCommand("verify").setExecutor(new VerifyCommand());
 
     }
 
