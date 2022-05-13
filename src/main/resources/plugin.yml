@@ -1,0 +1,7 @@
+name: WafVerify
+version: '${project.version}'
+main: com.theendercore.WafVerify
+api-version: 1.18
+authors: [ Ender, waf ]
+description: Yes :)
+website: wafflesarebetter.com
