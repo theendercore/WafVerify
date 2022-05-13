@@ -7,6 +7,7 @@ public final class WafVerify extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
+        System.out.println("Waffles are better!");
 
     }
 
