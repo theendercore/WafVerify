@@ -4,8 +4,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import io.github.cdimascio.dotenv.Dotenv;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,11 +14,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Objects;
+
 import static com.mongodb.client.model.Filters.eq;
 import static com.theendercore.WafVerify.LOGGER;
+import static com.theendercore.WafVerify.dotenv;
 
 public class VerifyCommand implements CommandExecutor {
-    Dotenv dotenv = Dotenv.load();
+
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -28,7 +33,7 @@ public class VerifyCommand implements CommandExecutor {
 
         Player player = (Player) sender;
         if (args.length < 1) {
-            player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
+            player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord! \n Or rejoin the DISCORD server to generate a new password ");
             return true;
         }
         String playerUUID = player.getUniqueId().toString();
@@ -37,23 +42,30 @@ public class VerifyCommand implements CommandExecutor {
             MongoCollection<Document> collection = database.getCollection("temppasswordmodels");
             MongoCollection<Document> submitCluster = database.getCollection("verifymodels");
             if (collection.find(eq("password", args[0])).first() == null) {
-                player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
+                player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord! \n Or rejoin the DISCORD server to generate a new password ");
                 return true;
             }
             Document playerInfo = (collection.find(eq("password", args[0])).first());
 
             assert playerInfo != null;
-            String id = (String) playerInfo.get("_id");
+            String id = (String) playerInfo.get("userID");
+            String serverID = (String) playerInfo.get("_id");
+            List<Document> pp = (List<Document>) ((submitCluster.find(eq("_id", id)).first())).get("verifiedSerevrs");
 
-            player.sendMessage(id);
-            Document playerInfoTheSecond = (submitCluster.find(eq("_id", id)).first());
-            LOGGER.info(String.valueOf(playerInfoTheSecond));
-            player.sendMessage((playerInfoTheSecond) + " pp");
+            int value = 0;
+            for (int i = 0; i < pp.size(); i++) {
+                String yes = (String) pp.get(i).get("serverID");
+                if (Objects.equals(yes, serverID)) {
+                    value = i;
+                    break;
+                }
+                player.sendMessage(yes + "\n :o");
+            }
 
-//                submitCluster.updateOne(
-//                        Filters.eq("_id", "xx"),
-//                        Updates.set("minecraftUUID", playerUUID));
+            Bson updates = Updates.combine(Updates.set("minecraftUUID", playerUUID), Updates.set("verifiedSerevrs." + value + ".verified", true));
 
+            submitCluster.updateOne(new Document().append("_id", id), updates);
+            collection.findOneAndDelete(new Document().append("_id", serverID));
             player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
         }
         return true;

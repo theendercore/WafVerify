@@ -1,6 +1,7 @@
 package com.theendercore;
 
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,7 @@ import org.slf4j.LoggerFactory;
 public final class WafVerify extends JavaPlugin {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("WafVerify");
-
+    public static final Dotenv dotenv = Dotenv.load();
 
     @Override
     public void onEnable() {
