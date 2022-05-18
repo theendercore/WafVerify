@@ -22,7 +22,7 @@ public class VerifyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
-            System.out.println("Verification can only be done by a player!");
+            LOGGER.info("Verification can only be done by a player!");
             return true;
         }
 
@@ -39,26 +39,21 @@ public class VerifyCommand implements CommandExecutor {
             MongoDatabase database = mongoClient.getDatabase("myFirstDatabase");
             MongoCollection<Document> collection = database.getCollection("temppasswordmodels");
             MongoCollection<Document> submitCluster = database.getCollection("verifymodels");
-            Document playerInfo;
             if (collection.find(eq("password", args[0])).first() == null) {
                 player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
                 return true;
             }
-            playerInfo = (collection.find(eq("password", args[0])).first());
+            Document playerInfo = (collection.find(eq("password", args[0])).first());
 
-            /*
-             * READ ABOUT BSON documents
-             *
-             * */
             assert playerInfo != null;
-            String name = (String) playerInfo.get("name");
+            String id = (String) playerInfo.get("_id");
 
-            LOGGER.info(String.valueOf(playerInfo));
-            player.sendMessage(playerInfo.toString());
             player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
-            player.sendMessage(name);
+            player.sendMessage(id);
+            Document playerInfoTheSecond = (submitCluster.find(eq("password", id)).first());
+            LOGGER.info(String.valueOf(playerInfoTheSecond));
+            player.sendMessage(playerInfoTheSecond.toString());
 
-//            Object x = playerInfo.get("password");
 //            LOGGER.info(x);
 //                submitCluster.updateOne(
 //                        Filters.eq("_id", "xx"),
