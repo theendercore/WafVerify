@@ -1,13 +1,10 @@
 package com.theendercore;
 
-import com.mongodb.DBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -15,6 +12,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
 import static com.mongodb.client.model.Filters.eq;
 import static com.theendercore.WafVerify.LOGGER;
 
@@ -41,21 +39,24 @@ public class VerifyCommand implements CommandExecutor {
             MongoDatabase database = mongoClient.getDatabase("myFirstDatabase");
             MongoCollection<Document> collection = database.getCollection("temppasswordmodels");
             MongoCollection<Document> submitCluster = database.getCollection("verifymodels");
-            DBObject playerInfo;
-            if (collection.find(eq("password", args[0])).first() == null){
+            Document playerInfo;
+            if (collection.find(eq("password", args[0])).first() == null) {
                 player.sendMessage(ChatColor.RED + "Please provide the password you where sent in Discord!");
                 return true;
             }
-//            playerInfo = (collection.find(eq("password", args[0])).first()).to;
+            playerInfo = (collection.find(eq("password", args[0])).first());
 
             /*
-            * READ ABOUT BSON documents
-            *
-            * */
-//            LOGGER.info(playerInfo);
-//            assert playerInfo != null;
-//            player.sendMessage(playerInfo.toString());
+             * READ ABOUT BSON documents
+             *
+             * */
+            assert playerInfo != null;
+            String name = (String) playerInfo.get("name");
+
+            LOGGER.info(String.valueOf(playerInfo));
+            player.sendMessage(playerInfo.toString());
             player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
+            player.sendMessage(name);
 
 //            Object x = playerInfo.get("password");
 //            LOGGER.info(x);
@@ -67,12 +68,13 @@ public class VerifyCommand implements CommandExecutor {
     }
 
 
-    private static class TempVerify{
+    private static class TempVerify {
         public String _id;
         public String password;
-        TempVerify(String _id,String password){
-            this._id=_id;
-            this.password=password;
+
+        TempVerify(String _id, String password) {
+            this._id = _id;
+            this.password = password;
         }
     }
 }

@@ -1,19 +1,19 @@
 package com.theendercore;
 
-import org.apache.logging.log4j.LogManager;
+
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class WafVerify extends JavaPlugin {
 
-    public static org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(Logger.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger("[WafVerify");
+
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        LOGGER.info("< WafVerify > Plugin Up");
+        LOGGER.info("Plugin Up");
         this.getServer().getPluginCommand("verify").setExecutor(new VerifyCommand());
 
     }
