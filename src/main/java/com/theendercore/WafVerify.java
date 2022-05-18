@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public final class WafVerify extends JavaPlugin {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("[WafVerify");
+    public static final Logger LOGGER = LoggerFactory.getLogger("WafVerify");
 
 
     @Override

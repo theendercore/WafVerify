@@ -32,9 +32,6 @@ public class VerifyCommand implements CommandExecutor {
             return true;
         }
         String playerUUID = player.getUniqueId().toString();
-//        for (String argument : args) {
-//            LOGGER.info(argument);
-//        }
         try (MongoClient mongoClient = MongoClients.create(dotenv.get("MONGO_URI"))) {
             MongoDatabase database = mongoClient.getDatabase("myFirstDatabase");
             MongoCollection<Document> collection = database.getCollection("temppasswordmodels");
@@ -48,16 +45,16 @@ public class VerifyCommand implements CommandExecutor {
             assert playerInfo != null;
             String id = (String) playerInfo.get("_id");
 
-            player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
             player.sendMessage(id);
-            Document playerInfoTheSecond = (submitCluster.find(eq("password", id)).first());
+            Document playerInfoTheSecond = (submitCluster.find(eq("_id", id)).first());
             LOGGER.info(String.valueOf(playerInfoTheSecond));
-            player.sendMessage(playerInfoTheSecond.toString());
+            player.sendMessage((playerInfoTheSecond) + " pp");
 
-//            LOGGER.info(x);
 //                submitCluster.updateOne(
 //                        Filters.eq("_id", "xx"),
 //                        Updates.set("minecraftUUID", playerUUID));
+
+            player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
         }
         return true;
     }
