@@ -76,7 +76,7 @@ public class VerifyCommand implements CommandExecutor {
 
             TextChannel textChannel = bot.getTextChannelById("976518221064704070");
             if(textChannel.canTalk()) {
-                textChannel.sendMessage("{server:\""+serverID+"\",user: \""+id+"\"}").queue();
+                textChannel.sendMessage("{\"server\":\""+serverID+"\",\"user\": \""+id+"\"}").queue();
             }
             player.sendMessage(ChatColor.AQUA + "WoW Epik Suk Sec!");
         }
