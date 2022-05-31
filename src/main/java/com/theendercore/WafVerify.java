@@ -7,11 +7,13 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.util.Objects;
 
 public final class WafVerify extends JavaPlugin {
 
@@ -19,29 +21,39 @@ public final class WafVerify extends JavaPlugin {
     public static final Dotenv dotenv = Dotenv.load();
     public static JDA bot;
 
+    public static FileConfiguration config;
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        config = getConfig();
         LOGGER.info("Plugin Up");
+
         this.getServer().getPluginCommand("verify").setExecutor(new VerifyCommand());
 
         JDABuilder builder = JDABuilder.createDefault(dotenv.get("TOKEN"));
 
-        builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE);
-        builder.setBulkDeleteSplittingEnabled(false);
-        builder.setCompression(Compression.NONE);
-        builder.setActivity(Activity.watching("Homa"));
+        builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
+                .setBulkDeleteSplittingEnabled(false)
+                .setCompression(Compression.NONE)
+                .setActivity(Activity.watching("Homa"));
+
+        config.addDefault("mongoURI", "uri");
+        config.options().copyDefaults(true);
+        saveConfig();
+
 
         try {
             bot = builder.build();
         } catch (LoginException e) {
             throw new RuntimeException(e);
         }
+        LOGGER.info("Plugin Loaded");
 
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if (Objects.equals(config.getString("mongoURI"), "uri")){
+            LOGGER.warn("WafVerify not setup Properly!");
+        }
     }
 }
