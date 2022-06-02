@@ -1,7 +1,6 @@
 package com.theendercore;
 
 
-import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -18,8 +17,7 @@ import java.util.Objects;
 public final class WafVerify extends JavaPlugin {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("WafVerify");
-    public static final Dotenv dotenv = Dotenv.load();
-    public static JDA bot;
+//    public static JDA bot;
 
     public static FileConfiguration config;
     @Override
@@ -29,23 +27,24 @@ public final class WafVerify extends JavaPlugin {
 
         this.getServer().getPluginCommand("verify").setExecutor(new VerifyCommand());
 
-        JDABuilder builder = JDABuilder.createDefault(dotenv.get("TOKEN"));
-
-        builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
-                .setBulkDeleteSplittingEnabled(false)
-                .setCompression(Compression.NONE)
-                .setActivity(Activity.watching("Homa"));
+//        JDABuilder builder = JDABuilder.createDefault(dotenv.get("TOKEN"));
+//
+//        builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
+//                .setBulkDeleteSplittingEnabled(false)+
+//                .setCompression(Compression.NONE)
+//                .setActivity(Activity.watching("Homa"));
 
         config.addDefault("mongoURI", "uri");
+        config.addDefault("wsIP", "ws://localhost:8080");
         config.options().copyDefaults(true);
         saveConfig();
 
 
-        try {
-            bot = builder.build();
-        } catch (LoginException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            bot = builder.build();
+//        } catch (LoginException e) {
+//            throw new RuntimeException(e);
+//        }
         LOGGER.info("Plugin Loaded");
 
     }

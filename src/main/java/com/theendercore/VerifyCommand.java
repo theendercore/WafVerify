@@ -5,7 +5,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bukkit.ChatColor;
@@ -13,14 +12,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.theendercore.WafVerify.*;
+import static com.theendercore.WafVerify.LOGGER;
+import static com.theendercore.WafVerify.config;
 
 public class VerifyCommand implements CommandExecutor {
 
@@ -82,13 +86,46 @@ public class VerifyCommand implements CommandExecutor {
             JSONObject pkg = new JSONObject();
             pkg.put("server", serverID);
             pkg.put("user", id);
+            WSC c = new WSC(new URI(Objects.requireNonNull(config.getString("wsIP"))));
+            c.connectBlocking();
+            c.send(pkg.toString());
 
-            TextChannel textChannel = bot.getTextChannelById("976518221064704070");
-            if (textChannel.canTalk()) {
-                textChannel.sendMessage(pkg.toJSONString()).queue();
-            }
+//            TextChannel textChannel = bot.getTextChannelById("976518221064704070");
+
+//            if (textChannel.canTalk()) {
+//                textChannel.sendMessage(pkg.toJSONString()).queue();
+//            }
             player.sendMessage(ChatColor.AQUA + "You have been verified! Welcome to the server! :)");
+        } catch (URISyntaxException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
         return true;
     }
+
+    static class WSC extends WebSocketClient {
+        public WSC(URI serverUri) {
+            super(serverUri);
+        }
+
+        @Override
+        public void onOpen(ServerHandshake serverHandshake) {
+            LOGGER.info("Connected to server!");
+        }
+
+        @Override
+        public void onMessage(String s) {
+            LOGGER.info("Message: " + s);
+        }
+
+        @Override
+        public void onClose(int i, String s, boolean b) {
+            LOGGER.info("Disconnected from server!");
+        }
+
+        @Override
+        public void onError(Exception e) {
+            LOGGER.warn("ERROR: \n" + e);
+        }
+    }
+
 }
