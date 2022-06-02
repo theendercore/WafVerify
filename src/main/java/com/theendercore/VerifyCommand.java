@@ -86,46 +86,33 @@ public class VerifyCommand implements CommandExecutor {
             JSONObject pkg = new JSONObject();
             pkg.put("server", serverID);
             pkg.put("user", id);
-            WSC c = new WSC(new URI(Objects.requireNonNull(config.getString("wsIP"))));
+            WebSocketClient c = new WebSocketClient(new URI(Objects.requireNonNull(config.getString("wsIP")))) {
+                @Override
+                public void onOpen(ServerHandshake serverHandshake) {
+                    LOGGER.info("Connected to server!");
+                }
+
+                @Override
+                public void onMessage(String s) {
+                    LOGGER.info("Message: " + s);
+                }
+
+                @Override
+                public void onClose(int i, String s, boolean b) {
+                    LOGGER.info("Disconnected from server!");
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    LOGGER.warn("ERROR: \n" + e);
+                }
+            };
             c.connectBlocking();
             c.send(pkg.toString());
-
-//            TextChannel textChannel = bot.getTextChannelById("976518221064704070");
-
-//            if (textChannel.canTalk()) {
-//                textChannel.sendMessage(pkg.toJSONString()).queue();
-//            }
             player.sendMessage(ChatColor.AQUA + "You have been verified! Welcome to the server! :)");
         } catch (URISyntaxException | InterruptedException e) {
             throw new RuntimeException(e);
         }
         return true;
     }
-
-    static class WSC extends WebSocketClient {
-        public WSC(URI serverUri) {
-            super(serverUri);
-        }
-
-        @Override
-        public void onOpen(ServerHandshake serverHandshake) {
-            LOGGER.info("Connected to server!");
-        }
-
-        @Override
-        public void onMessage(String s) {
-            LOGGER.info("Message: " + s);
-        }
-
-        @Override
-        public void onClose(int i, String s, boolean b) {
-            LOGGER.info("Disconnected from server!");
-        }
-
-        @Override
-        public void onError(Exception e) {
-            LOGGER.warn("ERROR: \n" + e);
-        }
-    }
-
 }
